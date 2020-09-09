@@ -1,8 +1,7 @@
 import api.keras.Sequential
 import api.keras.activations.Activations
-import api.keras.dataset.ImageDataset
 import api.keras.initializers.Constant
-import api.keras.initializers.TruncatedNormal
+import api.keras.initializers.GlorotNormal
 import api.keras.initializers.Zeros
 import api.keras.layers.Dense
 import api.keras.layers.Flatten
@@ -11,23 +10,19 @@ import api.keras.layers.twodim.Conv2D
 import api.keras.layers.twodim.ConvPadding
 import api.keras.layers.twodim.MaxPool2D
 import api.keras.loss.LossFunctions
-import api.keras.metric.Metrics
-import api.keras.optimizers.SGD
-import examples.keras.mnist.util.*
+import api.keras.optimizers.Adam
+import datasets.*
+import datasets.handlers.*
 
-private const val LEARNING_RATE = 0.05f
-private const val EPOCHS = 4
+
+private const val EPOCHS = 2
 private const val TRAINING_BATCH_SIZE = 500
 private const val TEST_BATCH_SIZE = 1000
 private const val NUM_CHANNELS = 1L
 private const val IMAGE_SIZE = 28L
 private const val SEED = 12L
 
-/**
- * Kotlin implementation of LeNet on Keras.
- * Architecture could be copied here: https://github.com/TaavishThaman/LeNet-5-with-Keras/blob/master/lenet_5.py
- */
-private val model = Sequential.of<Float>(
+private val model = Sequential.of(
     Input(
         IMAGE_SIZE,
         IMAGE_SIZE,
@@ -38,7 +33,7 @@ private val model = Sequential.of<Float>(
         kernelSize = longArrayOf(5, 5),
         strides = longArrayOf(1, 1, 1, 1),
         activation = Activations.Relu,
-        kernelInitializer = TruncatedNormal(SEED),
+        kernelInitializer = GlorotNormal(SEED),
         biasInitializer = Zeros(),
         padding = ConvPadding.SAME
     ),
@@ -51,7 +46,7 @@ private val model = Sequential.of<Float>(
         kernelSize = longArrayOf(5, 5),
         strides = longArrayOf(1, 1, 1, 1),
         activation = Activations.Relu,
-        kernelInitializer = TruncatedNormal(SEED),
+        kernelInitializer = GlorotNormal(SEED),
         biasInitializer = Zeros(),
         padding = ConvPadding.SAME
     ),
@@ -59,38 +54,38 @@ private val model = Sequential.of<Float>(
         poolSize = intArrayOf(1, 2, 2, 1),
         strides = intArrayOf(1, 2, 2, 1)
     ),
-    Flatten(), // 3136
+    Flatten(),
     Dense(
         outputSize = 512,
         activation = Activations.Relu,
-        kernelInitializer = TruncatedNormal(SEED),
+        kernelInitializer = GlorotNormal(SEED),
         biasInitializer = Constant(0.1f)
     ),
     Dense(
-        outputSize = NUM_LABELS,
+        outputSize = 10,
         activation = Activations.Linear,
-        kernelInitializer = TruncatedNormal(SEED),
+        kernelInitializer = GlorotNormal(SEED),
         biasInitializer = Constant(0.1f)
     )
 )
 
 fun main() {
-    val (train, test) = ImageDataset.createTrainAndTestDatasets(
+    val (train, test) = Dataset.createTrainAndTestDatasets(
         TRAIN_IMAGES_ARCHIVE,
         TRAIN_LABELS_ARCHIVE,
         TEST_IMAGES_ARCHIVE,
         TEST_LABELS_ARCHIVE,
-        NUM_LABELS,
+        10,
         ::extractImages,
         ::extractLabels
     )
 
     model.use {
-        it.compile(optimizer = SGD(LEARNING_RATE), loss = LossFunctions.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS)
+        it.compile(optimizer = Adam(), loss = LossFunctions.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS)
 
         it.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE, verbose = true)
 
-        val accuracy = it.evaluate(dataset = test, metric = Metrics.ACCURACY, batchSize = TEST_BATCH_SIZE)
+        val accuracy = it.evaluate(dataset = test, batchSize = TEST_BATCH_SIZE)
 
         println("Accuracy: $accuracy")
     }

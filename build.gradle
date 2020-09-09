@@ -1,21 +1,19 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.0'
 }
 
-group 'org.example'
+group 'org.jetbrains.kotlin.dl.examples'
 version '1.0-SNAPSHOT'
 
 repositories {
-    maven {
-        name "repo.labs.intellij.net-releases"
-        url "https://repo.labs.intellij.net/artifactory/kotlin-data-science"
-    }
+    mavenLocal()
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation  "org.jetbrains.kotlin.tensorflow:Kotof:0.0.1"
+    implementation 'org.jetbrains.kotlin.kotlin-dl:api:0.0.5'
 }
 
 compileKotlin {
