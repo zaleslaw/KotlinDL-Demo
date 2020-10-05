@@ -6,14 +6,15 @@ group 'org.jetbrains.kotlin.dl.examples'
 version '1.0-SNAPSHOT'
 
 repositories {
-    mavenLocal()
     mavenCentral()
     jcenter()
+    maven { url 'https://kotlin.bintray.com/kotlin-datascience' }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'org.jetbrains.kotlin.kotlin-dl:api:0.0.5'
+    implementation 'org.jetbrains.kotlin.kotlin-dl:api:0.0.8'
+    compile 'com.beust:klaxon:5.0.1'
 }
 
 compileKotlin {
