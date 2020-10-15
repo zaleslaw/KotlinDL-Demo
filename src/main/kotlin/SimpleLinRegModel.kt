@@ -4,7 +4,7 @@ import api.core.initializer.HeNormal
 import api.core.initializer.Zeros
 import api.core.layer.Dense
 import api.core.layer.Input
-import api.core.loss.LossFunctions
+import api.core.loss.Losses
 import api.core.metric.Metrics
 import api.core.optimizer.SGD
 import datasets.Dataset
@@ -64,7 +64,7 @@ fun main() {
     model.use {
         it.compile(
             optimizer = SGD(learningRate = 0.001f),
-            loss = LossFunctions.MSE,
+            loss = Losses.MSE,
             metric = Metrics.MSE
         )
 

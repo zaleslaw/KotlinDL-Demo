@@ -4,14 +4,14 @@ import api.core.initializer.HeNormal
 import api.core.initializer.Zeros
 import api.core.layer.Dense
 import api.core.layer.Input
-import api.core.loss.LossFunctions
+import api.core.loss.Losses
 import api.core.metric.Metrics
 import api.core.optimizer.SGD
 import datasets.Dataset
 
 private const val SEED = 12L
 private const val TEST_BATCH_SIZE = 5
-private const val EPOCHS = 50
+private const val EPOCHS = 100
 private const val TRAINING_BATCH_SIZE = 5
 
 private val model = Sequential.of(
@@ -31,7 +31,7 @@ fun main() {
     val (train, test) = dataset.split(0.9)
 
     model.use {
-        it.compile(optimizer = SGD(), loss = LossFunctions.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS)
+        it.compile(optimizer = SGD(), loss = Losses.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS, metric = Metrics.ACCURACY)
 
         it.summary()
         it.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE, verbose = false)
