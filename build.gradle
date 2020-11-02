@@ -13,8 +13,12 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'org.jetbrains.kotlin.kotlin-dl:api:0.0.9'
-    compile 'com.beust:klaxon:5.0.1'
+    implementation 'org.jetbrains.kotlin-deeplearning:api:0.0.10'
+
+    /*
+    // to run on GPU (if CUDA is updated and machine with NVIDIA onboard)
+    compile 'org.tensorflow:libtensorflow:1.15.0'
+    compile 'org.tensorflow:libtensorflow_jni_gpu:1.15.0'*/
 }
 
 compileKotlin {
