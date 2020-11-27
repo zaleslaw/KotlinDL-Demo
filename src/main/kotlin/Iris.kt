@@ -12,12 +12,12 @@ import org.jetbrains.kotlinx.dl.datasets.Dataset
 
 private const val SEED = 12L
 private const val TEST_BATCH_SIZE = 5
-private const val EPOCHS = 100
+private const val EPOCHS = 10
 private const val TRAINING_BATCH_SIZE = 5
 
 private val model = Sequential.of(
     Input(4),
-    Dense(50, Activations.Relu, kernelInitializer = HeNormal(SEED), biasInitializer = Zeros()),
+    Dense(5, Activations.Relu, kernelInitializer = HeNormal(SEED), biasInitializer = Zeros()),
     Dense(3, Activations.Linear, kernelInitializer = HeNormal(SEED), biasInitializer = Zeros())
 )
 

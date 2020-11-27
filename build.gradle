@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'org.jetbrains.kotlin-deeplearning:api:0.0.10'
+    implementation 'org.jetbrains.kotlin-deeplearning:api:0.0.14'
 
     /*
     // to run on GPU (if CUDA is updated and machine with NVIDIA onboard)
