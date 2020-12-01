@@ -12,7 +12,7 @@ import kotlin.random.Random
 
 private const val SEED = 12L
 private const val TEST_BATCH_SIZE = 100
-private const val EPOCHS = 30
+private const val EPOCHS = 1000
 private const val TRAINING_BATCH_SIZE = 100
 
 private val model = Sequential.of(
