@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
 }
 
 group 'org.jetbrains.kotlin.dl.examples'
@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'org.jetbrains.kotlin-deeplearning:api:0.0.14'
+    implementation 'org.jetbrains.kotlin-deeplearning:api:0.1.0'
 
     /*
     // to run on GPU (if CUDA is updated and machine with NVIDIA onboard)
