@@ -6,6 +6,7 @@ group 'org.jetbrains.kotlin.dl.examples'
 version '1.0-SNAPSHOT'
 
 repositories {
+   // mavenLocal()
     mavenCentral()
     jcenter()
     maven { url 'https://kotlin.bintray.com/kotlin-datascience' }
@@ -13,8 +14,10 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'org.jetbrains.kotlin-deeplearning:api:0.1.0'
-
+    implementation 'org.jetbrains.kotlin-deeplearning:api:0.1.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.14.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.14.0'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.0'
     /*
     // to run on GPU (if CUDA is updated and machine with NVIDIA onboard)
     compile 'org.tensorflow:libtensorflow:1.15.0'

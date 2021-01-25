@@ -1,4 +1,3 @@
-
 import org.jetbrains.kotlinx.dl.api.core.Sequential
 import org.jetbrains.kotlinx.dl.api.core.WritingMode
 import org.jetbrains.kotlinx.dl.api.core.activation.Activations
@@ -17,7 +16,6 @@ import org.jetbrains.kotlinx.dl.api.core.optimizer.Adam
 import org.jetbrains.kotlinx.dl.datasets.Dataset
 import org.jetbrains.kotlinx.dl.datasets.handlers.*
 import java.io.File
-
 
 private const val EPOCHS = 3
 private const val TRAINING_BATCH_SIZE = 500
@@ -89,7 +87,7 @@ fun main() {
 
     model.summary()
 
-    model.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE, verbose = true)
+    model.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE)
 
     model.save(File("/my_model"), writingMode = WritingMode.OVERRIDE)
 

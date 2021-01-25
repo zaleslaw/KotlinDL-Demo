@@ -69,10 +69,10 @@ fun main() {
         )
 
         it.summary()
-        it.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE, verbose = true)
+        it.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE)
 
         val mse = it.evaluate(dataset = test, batchSize = TEST_BATCH_SIZE).metrics[Metrics.MSE]
-        println("Linear model is: ${it.getLayer("dense_1").getWeights()[0].contentDeepToString()}")
+        println("Linear model is: ${it.getLayer("dense_1").weights[0].contentDeepToString()}")
 
         println("MSE: $mse")
     }
