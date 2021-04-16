@@ -1,21 +1,19 @@
 import org.jetbrains.kotlinx.dl.api.core.Sequential
-import org.jetbrains.kotlinx.dl.api.core.WritingMode
 import org.jetbrains.kotlinx.dl.api.core.activation.Activations
 import org.jetbrains.kotlinx.dl.api.core.initializer.Constant
 import org.jetbrains.kotlinx.dl.api.core.initializer.GlorotNormal
 import org.jetbrains.kotlinx.dl.api.core.initializer.Zeros
-import org.jetbrains.kotlinx.dl.api.core.layer.Dense
-import org.jetbrains.kotlinx.dl.api.core.layer.Flatten
-import org.jetbrains.kotlinx.dl.api.core.layer.Input
-import org.jetbrains.kotlinx.dl.api.core.layer.twodim.Conv2D
-import org.jetbrains.kotlinx.dl.api.core.layer.twodim.ConvPadding
-import org.jetbrains.kotlinx.dl.api.core.layer.twodim.MaxPool2D
+import org.jetbrains.kotlinx.dl.api.core.layer.convolutional.Conv2D
+import org.jetbrains.kotlinx.dl.api.core.layer.convolutional.ConvPadding
+import org.jetbrains.kotlinx.dl.api.core.layer.core.Dense
+import org.jetbrains.kotlinx.dl.api.core.layer.core.Input
+import org.jetbrains.kotlinx.dl.api.core.layer.pooling.MaxPool2D
+import org.jetbrains.kotlinx.dl.api.core.layer.reshaping.Flatten
 import org.jetbrains.kotlinx.dl.api.core.loss.Losses
 import org.jetbrains.kotlinx.dl.api.core.metric.Metrics
 import org.jetbrains.kotlinx.dl.api.core.optimizer.Adam
-import org.jetbrains.kotlinx.dl.datasets.Dataset
-import org.jetbrains.kotlinx.dl.datasets.handlers.*
-import java.io.File
+import org.jetbrains.kotlinx.dl.api.core.optimizer.ClipGradientByValue
+import org.jetbrains.kotlinx.dl.dataset.mnist
 
 private const val EPOCHS = 3
 private const val TRAINING_BATCH_SIZE = 500
@@ -73,25 +71,21 @@ fun main() {
     )
 
 
-    val (train, test) = Dataset.createTrainAndTestDatasets(
-        TRAIN_IMAGES_ARCHIVE,
-        TRAIN_LABELS_ARCHIVE,
-        TEST_IMAGES_ARCHIVE,
-        TEST_LABELS_ARCHIVE,
-        10,
-        ::extractImages,
-        ::extractLabels
-    )
+    val (train, test) = mnist()
 
-    model.compile(optimizer = Adam(), loss = Losses.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS, metric = Metrics.ACCURACY)
+    model.use {
+        it.compile(
+            optimizer = Adam(clipGradient = ClipGradientByValue(0.1f)),
+            loss = Losses.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS,
+            metric = Metrics.ACCURACY
+        )
 
-    model.summary()
+        it.summary()
 
-    model.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE)
+        it.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE)
 
-    model.save(File("/my_model"), writingMode = WritingMode.OVERRIDE)
+        val accuracy = it.evaluate(dataset = test, batchSize = TEST_BATCH_SIZE).metrics[Metrics.ACCURACY]
 
-    val accuracy = model.evaluate(dataset = test, batchSize = TEST_BATCH_SIZE)
-
-    println("Accuracy: $accuracy")
+        println("Accuracy: $accuracy")
+    }
 }
