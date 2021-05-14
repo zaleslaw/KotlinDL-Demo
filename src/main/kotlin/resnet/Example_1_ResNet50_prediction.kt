@@ -17,22 +17,20 @@ import org.jetbrains.kotlinx.dl.dataset.image.ColorOrder
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.ImageShape
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.Preprocessing
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.load
-import org.jetbrains.kotlinx.dl.dataset.preprocessor.imagePreprocessing
-import org.jetbrains.kotlinx.dl.dataset.preprocessor.preprocessingPipeline
+import org.jetbrains.kotlinx.dl.dataset.preprocessor.preprocess
+import org.jetbrains.kotlinx.dl.dataset.preprocessor.transformImage
 import java.io.File
 import java.net.URISyntaxException
 import java.net.URL
 
 /**
  * This examples demonstrates the inference concept on ResNet'50 model:
- *
- * Weights are loaded from .h5 file, configuration is loaded from .json file.
- *
- * Model predicts on a few images located in resources.
- *
- * No additional training.
- *
- * No new layers are added.
+ * - Model configuration, model weights and labels are obtained from [ModelZoo].
+ * - Weights are loaded from .h5 file, configuration is loaded from .json file.
+ * - Model predicts on a few images located in resources.
+ * - No additional training.
+ * - No new layers are added.
+ * - Special preprocessing (used in MobileNetV2 during training on ImageNet dataset) is applied to images before prediction.
  */
 fun resnet50prediction() {
     val modelZoo =
@@ -55,8 +53,8 @@ fun resnet50prediction() {
         it.loadWeights(hdfFile)
 
         for (i in 1..8) {
-            val preprocessing: Preprocessing = preprocessingPipeline {
-                imagePreprocessing {
+            val preprocessing: Preprocessing = preprocess {
+                transformImage {
                     load {
                         pathToData = getFileFromResource("datasets/vgg/image$i.jpg")
                         imageShape = ImageShape(224, 224, 3)
@@ -77,8 +75,10 @@ fun resnet50prediction() {
     }
 }
 
-fun main() = resnet50prediction()
+/** */
+fun main(): Unit = resnet50prediction()
 
+/** Converts resource string path to the file. */
 @Throws(URISyntaxException::class)
 fun getFileFromResource(fileName: String): File {
     val classLoader: ClassLoader = object {}.javaClass.classLoader

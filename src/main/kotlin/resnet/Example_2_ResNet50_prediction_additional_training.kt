@@ -17,7 +17,7 @@ import org.jetbrains.kotlinx.dl.api.inference.keras.loadWeightsForFrozenLayers
 import org.jetbrains.kotlinx.dl.api.inference.keras.loaders.ModelType
 import org.jetbrains.kotlinx.dl.api.inference.keras.loaders.ModelZoo
 import org.jetbrains.kotlinx.dl.dataset.OnFlyImageDataset
-import org.jetbrains.kotlinx.dl.dataset.catDogsSmallDatasetPath
+import org.jetbrains.kotlinx.dl.dataset.dogsCatsSmallDatasetPath
 import org.jetbrains.kotlinx.dl.dataset.image.ColorOrder
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.generator.FromFolders
@@ -34,15 +34,26 @@ private const val NUM_CHANNELS = 3L
 private const val IMAGE_SIZE = 224L
 private const val TRAIN_TEST_SPLIT_RATIO = 0.7
 
+/**
+ * This examples demonstrates the transfer learning concept on ResNet'50 model:
+ * - Model configuration, model weights and labels are obtained from [ModelZoo].
+ * - Weights are loaded from .h5 file, configuration is loaded from .json file.
+ * - All layers, excluding the last [Dense], are added to the new Neural Network, its weights are frozen.
+ * - New Dense layers are added and initialized via defined initializers.
+ * - Model is re-trained on [dogsCatsSmallDatasetPath] dataset.
+ *
+ * We use the [Preprocessing] DSL to describe the dataset generation pipeline.
+ * We demonstrate the workflow on the subset of Kaggle Cats vs Dogs binary classification dataset.
+ */
 fun resnet50additionalTraining() {
     val modelZoo =
         ModelZoo(commonModelDirectory = File("cache/pretrainedModels"), modelType = ModelType.ResNet_50)
     val model = modelZoo.loadModel() as Functional
 
-    val catdogimages = catDogsSmallDatasetPath()
+    val catdogimages = dogsCatsSmallDatasetPath()
 
-    val preprocessing: Preprocessing = preprocessingPipeline {
-        imagePreprocessing {
+    val preprocessing: Preprocessing = preprocess {
+        transformImage {
             load {
                 pathToData = File(catdogimages)
                 imageShape = ImageShape(channels = NUM_CHANNELS)
@@ -55,8 +66,10 @@ fun resnet50additionalTraining() {
                 interpolation = InterpolationType.BILINEAR
             }
         }
-        sharpen {
-            modelType = ModelType.ResNet_50
+        transformTensor {
+            sharpen {
+                modelType = ModelType.ResNet_50
+            }
         }
     }
 
@@ -77,23 +90,32 @@ fun resnet50additionalTraining() {
 
     layers.removeLast()
 
-    var x = Dense(
+    val newDenseLayer = Dense(
         name = "top_dense",
         kernelInitializer = GlorotUniform(),
         biasInitializer = GlorotUniform(),
         outputSize = 200,
         activation = Activations.Relu
-    )(layers.last())
+    )
+    newDenseLayer.inboundLayers.add(layers.last())
+    layers.add(
+        newDenseLayer
+    )
 
-    x = Dense(
+    val newDenseLayer2 = Dense(
         name = "pred",
         kernelInitializer = GlorotUniform(),
         biasInitializer = GlorotUniform(),
         outputSize = NUM_CLASSES,
         activation = Activations.Linear
-    )(x)
+    )
+    newDenseLayer2.inboundLayers.add(layers.last())
 
-    val model2 = Functional.fromOutput(x)
+    layers.add(
+        newDenseLayer2
+    )
+
+    val model2 = Functional.of(layers)
 
     model2.use {
         it.compile(
@@ -118,6 +140,7 @@ fun resnet50additionalTraining() {
     }
 }
 
-fun main() = resnet50additionalTraining()
+/** */
+fun main(): Unit = resnet50additionalTraining()
 
 
