@@ -1,22 +1,23 @@
 Name: default_data_placeholder; Type: Placeholder; Out #tensors:  1
-Name: dense_1_dense_kernel; Type: VariableV2; Out #tensors:  1
-Name: dense_1_dense_bias; Type: VariableV2; Out #tensors:  1
+Name: dense_2_dense_kernel; Type: VariableV2; Out #tensors:  1
+Name: dense_2_dense_bias; Type: VariableV2; Out #tensors:  1
 Name: Const; Type: Const; Out #tensors:  1
 Name: Const_1; Type: Const; Out #tensors:  1
 Name: StatelessTruncatedNormal; Type: StatelessTruncatedNormal; Out #tensors:  1
 Name: Const_2; Type: Const; Out #tensors:  1
 Name: Cast; Type: Cast; Out #tensors:  1
-Name: Init_dense_1_dense_kernel; Type: Mul; Out #tensors:  1
-Name: Assign_dense_1_dense_kernel; Type: Assign; Out #tensors:  1
+Name: Init_dense_2_dense_kernel; Type: Mul; Out #tensors:  1
+Name: Assign_dense_2_dense_kernel; Type: Assign; Out #tensors:  1
 Name: Const_3; Type: Const; Out #tensors:  1
-Name: Init_dense_1_dense_bias/Zero; Type: Const; Out #tensors:  1
-Name: Init_dense_1_dense_bias/Fill; Type: Fill; Out #tensors:  1
-Name: Assign_dense_1_dense_bias; Type: Assign; Out #tensors:  1
+Name: Init_dense_2_dense_bias/Zero; Type: Const; Out #tensors:  1
+Name: Init_dense_2_dense_bias/Fill; Type: Fill; Out #tensors:  1
+Name: Assign_dense_2_dense_bias; Type: Assign; Out #tensors:  1
 Name: Placeholder; Type: Placeholder; Out #tensors:  1
 Name: numberOfLosses; Type: Placeholder; Out #tensors:  1
+Name: training; Type: Placeholder; Out #tensors:  1
 Name: MatMul; Type: MatMul; Out #tensors:  1
 Name: Add; Type: Add; Out #tensors:  1
-Name: Activation_dense_1; Type: Identity; Out #tensors:  1
+Name: Activation_dense_2; Type: Identity; Out #tensors:  1
 Name: Sub; Type: Sub; Out #tensors:  1
 Name: Abs; Type: Abs; Out #tensors:  1
 Name: Const_4; Type: Const; Out #tensors:  1
@@ -105,3 +106,4 @@ Name: Range_3; Type: Range; Out #tensors:  1
 Name: ReduceSum_3; Type: Sum; Out #tensors:  1
 Name: DivNoNan_1; Type: DivNoNan; Out #tensors:  1
 Name: Metric_MAE; Type: Identity; Out #tensors:  1
+
