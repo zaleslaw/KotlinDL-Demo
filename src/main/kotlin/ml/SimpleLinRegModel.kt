@@ -8,12 +8,13 @@ import org.jetbrains.kotlinx.dl.api.core.loss.Losses
 import org.jetbrains.kotlinx.dl.api.core.metric.Metrics
 import org.jetbrains.kotlinx.dl.api.core.optimizer.SGD
 import org.jetbrains.kotlinx.dl.dataset.OnHeapDataset
+import kotlin.math.exp
 import kotlin.random.Random
 
 private const val SEED = 12L
 private const val TEST_BATCH_SIZE = 100
-private const val EPOCHS = 1000
-private const val TRAINING_BATCH_SIZE = 100
+private const val EPOCHS = 10
+private const val TRAINING_BATCH_SIZE = 20
 
 private val model = Sequential.of(
     Input(4),
@@ -76,6 +77,17 @@ fun main() {
         println("Weights: " + it.getLayer("dense_2").weights["dense_2_dense_kernel"].contentDeepToString())
         println("Bias: " + it.getLayer("dense_2").weights["dense_2_dense_bias"].contentDeepToString())
         println("MAE: $mae")
+
+
+        repeat(100) { id ->
+            val xReal = test.getX(id)
+            val yReal = test.getY(id)
+
+            val yPred2 = it.predict(xReal) // always returns 0
+            val yPred3 = it.predictSoftly(xReal) // returns value oscillating around 1.0
+
+            println("xReal: ${xReal[0]}, yReal: $yReal, yPred2: $yPred2, yPred3: ${yPred3[0]}")
+        }
     }
 }
 
