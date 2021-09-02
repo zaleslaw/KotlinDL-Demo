@@ -2,17 +2,16 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.10'
 }
 
-group 'org.jetbrains.kotlin.dl.examples'
-version '1.0-SNAPSHOT'
+group 'com.zaleslaw.kotlin-deep-learning'
+version '0.2.0'
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-api:0.1.1'
+    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-api:0.2.0'
     implementation 'org.apache.logging.log4j:log4j-api:2.14.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.14.0'
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.0'
