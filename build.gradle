@@ -11,9 +11,9 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-api:0.3.0-alpha-1'
-    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-onnx:0.3.0-alpha-1'
-    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-visualization:0.3.0-alpha-1'
+    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-api:0.3.0-alpha-4'
+    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-onnx:0.3.0-alpha-4'
+    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-visualization:0.3.0-alpha-4'
     implementation 'org.apache.logging.log4j:log4j-api:2.14.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.14.0'
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.0'
@@ -21,6 +21,11 @@ dependencies {
     // to run on GPU (if CUDA is updated and machine with NVIDIA onboard)
     compile 'org.tensorflow:libtensorflow:1.15.0'
     compile 'org.tensorflow:libtensorflow_jni_gpu:1.15.0'*/
+
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-params:5.5.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
 }
 
 compileKotlin {
@@ -28,6 +33,13 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+test {
+    useJUnitPlatform()
+    // set heap size for the test JVM(s)
+    minHeapSize = "1024m"
+    maxHeapSize = "8g"
 }
 
 task fatJar(type: Jar) {
