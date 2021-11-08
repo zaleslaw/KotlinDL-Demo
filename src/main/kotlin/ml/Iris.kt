@@ -43,7 +43,7 @@ fun main() {
 }
 
 
-fun extractX(): Array<FloatArray> {
+private fun extractX(): Array<FloatArray> {
     val init: (index: Int) -> FloatArray = { index ->
         floatArrayOf(
             data[index][1].toFloat(),
@@ -55,7 +55,7 @@ fun extractX(): Array<FloatArray> {
     return Array(data.size, init = init)
 }
 
-fun extractY(): FloatArray {
+private fun extractY(): FloatArray {
     val labels = FloatArray(data.size) { 0.0f }
     for (i in labels.indices) {
         val classLabel = data[i][0]
