@@ -1,22 +1,22 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.31'
 }
 
 group 'com.zaleslaw.kotlin-deep-learning'
-version '0.2.0'
+version '0.3.0'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-api:0.3.0-alpha-1'
-    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-onnx:0.3.0-alpha-1'
-    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-visualization:0.3.0-alpha-1'
-    implementation 'org.apache.logging.log4j:log4j-api:2.14.0'
-    implementation 'org.apache.logging.log4j:log4j-core:2.14.0'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.0'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31'
+    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-api:0.3.0'
+    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-onnx:0.3.0'
+    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-visualization:0.3.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.14.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.14.1'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1'
     /*
     // to run on GPU (if CUDA is updated and machine with NVIDIA onboard)
     compile 'org.tensorflow:libtensorflow:1.15.0'

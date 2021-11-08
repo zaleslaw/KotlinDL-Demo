@@ -8,7 +8,6 @@ package onnx
 import org.jetbrains.kotlinx.dl.api.inference.loaders.ONNXModelHub
 import org.jetbrains.kotlinx.dl.api.inference.objectdetection.DetectedObject
 import org.jetbrains.kotlinx.dl.api.inference.onnx.ONNXModels
-import org.jetbrains.kotlinx.dl.api.inference.onnx.SSDObjectDetectionModel
 import org.jetbrains.kotlinx.dl.dataset.image.ColorOrder
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.*
@@ -17,10 +16,9 @@ import resnet.getFileFromResource
 import java.io.File
 
 fun main() {
-    // TODO: ModelHub -> RemoteModel -> loadModel
     val modelHub =
-        ONNXModelHub(commonModelDirectory = File("cache/pretrainedModels"), modelType = ONNXModels.ObjectDetection.SSD)
-    val model = modelHub.loadModel() as SSDObjectDetectionModel // TODO: reifed parameter
+        ONNXModelHub(cacheDirectory = File("cache/pretrainedModels"))
+    val model = ONNXModels.ObjectDetection.SSD.pretrainedModel(modelHub)
 
     model.use { detectionModel ->
         println(detectionModel)
@@ -42,12 +40,12 @@ private fun visualise(
     detectedObjects: List<DetectedObject>
 ) {
     val preprocessing: Preprocessing = preprocess {
+        load {
+            pathToData = imageFile
+            imageShape = ImageShape(224, 224, 3)
+            colorMode = ColorOrder.BGR
+        }
         transformImage {
-            load {
-                pathToData = imageFile
-                imageShape = ImageShape(224, 224, 3)
-                colorMode = ColorOrder.BGR
-            }
             resize {
                 outputWidth = 1200
                 outputHeight = 1200
@@ -64,4 +62,5 @@ private fun visualise(
 
     drawDetectedObjects(rawImage, ImageShape(1200, 1200, 3), detectedObjects)
 }
+
 

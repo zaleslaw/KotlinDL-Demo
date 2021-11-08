@@ -22,7 +22,6 @@ import org.jetbrains.kotlinx.dl.dataset.image.ColorOrder
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.generator.FromFolders
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.InterpolationType
-import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.load
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.resize
 import java.io.File
 
@@ -46,20 +45,20 @@ private const val TRAIN_TEST_SPLIT_RATIO = 0.7
  * We demonstrate the workflow on the subset of Kaggle Cats vs Dogs binary classification dataset.
  */
 fun resnet50additionalTraining() {
-    val modelHub =
-        TFModelHub(commonModelDirectory = File("cache/pretrainedModels"), modelType = TFModels.CV.ResNet_50)
-    val model = modelHub.loadModel() as Functional
+    val modelHub = TFModelHub(cacheDirectory = File("cache/pretrainedModels"))
+    var modelType = TFModels.CV.ResNet50
+    val model = modelHub.loadModel(modelType)
 
-    val catdogimages = dogsCatsSmallDatasetPath()
+    val dogsCatsImages = dogsCatsSmallDatasetPath()
 
     val preprocessing: Preprocessing = preprocess {
+        load {
+            pathToData = File(dogsCatsImages)
+            imageShape = ImageShape(channels = NUM_CHANNELS)
+            colorMode = ColorOrder.BGR
+            labelGenerator = FromFolders(mapping = mapOf("cat" to 0, "dog" to 1))
+        }
         transformImage {
-            load {
-                pathToData = File(catdogimages)
-                imageShape = ImageShape(channels = NUM_CHANNELS)
-                colorMode = ColorOrder.BGR
-                labelGenerator = FromFolders(mapping = mapOf("cat" to 0, "dog" to 1))
-            }
             resize {
                 outputHeight = IMAGE_SIZE.toInt()
                 outputWidth = IMAGE_SIZE.toInt()
@@ -68,7 +67,7 @@ fun resnet50additionalTraining() {
         }
         transformTensor {
             sharpen {
-                modelType = TFModels.CV.ResNet_50
+                modelType = TFModels.CV.ResNet50
             }
         }
     }
@@ -76,7 +75,7 @@ fun resnet50additionalTraining() {
     val dataset = OnFlyImageDataset.create(preprocessing).shuffle()
     val (train, test) = dataset.split(TRAIN_TEST_SPLIT_RATIO)
 
-    val hdfFile = modelHub.loadWeights()
+    val hdfFile = modelHub.loadWeights(modelType)
     val layers = mutableListOf<Layer>()
 
     for (layer in model.layers) {
