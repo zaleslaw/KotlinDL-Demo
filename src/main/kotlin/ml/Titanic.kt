@@ -10,6 +10,8 @@ import org.jetbrains.kotlinx.dl.api.core.layer.core.Dense
 import org.jetbrains.kotlinx.dl.api.core.layer.core.Input
 import org.jetbrains.kotlinx.dl.api.core.loss.Losses
 import org.jetbrains.kotlinx.dl.api.core.metric.Metrics
+import org.jetbrains.kotlinx.dl.api.core.optimizer.AdaGradDA
+import org.jetbrains.kotlinx.dl.api.core.optimizer.Adam
 import org.jetbrains.kotlinx.dl.api.core.optimizer.SGD
 import org.jetbrains.kotlinx.dl.dataset.OnHeapDataset
 import java.text.NumberFormat
@@ -22,7 +24,8 @@ private const val TRAINING_BATCH_SIZE = 50
 
 private val model = Sequential.of(
     Input(5),
-    Dense(50, Activations.Relu, kernelInitializer = HeNormal(SEED), biasInitializer = Zeros()),
+    Dense(100, Activations.Relu, kernelInitializer = HeNormal(SEED), biasInitializer = Zeros()),
+    Dense(30, Activations.Relu, kernelInitializer = HeNormal(SEED), biasInitializer = Zeros()),
     Dense(2, Activations.Linear, kernelInitializer = HeNormal(SEED), biasInitializer = Zeros())
 )
 
@@ -33,7 +36,7 @@ fun main() {
     df.describe().print() // ?? Bug: should 14 columns not 5 - looks like stat only for numerical columns, it's strange
 
     val subset = df
-        .dropNulls { cols(it["sibsp"], it["parch"], it["age"], it["fare"]) }
+        .dropNulls("sibsp", "parch", "age", "fare")
         //.map { it[sex] }
             // TODO: how to make OHE?
         .select("survived", "\uFEFFpclass", "sibsp", "parch", "age", "fare")
@@ -43,15 +46,22 @@ fun main() {
     subset.describe().print()
     println(subset[0][0])
 
-
     df["fare"].describe().print() // TODO: add facts about column like min/max/sum/avg/median/std
-    subset.shuffled()
+    val shuffledDf = subset.shuffled()
 
-    val dataset = OnHeapDataset.create(dataframe = subset, xColumns = listOf("\uFEFFpclass", "sibsp", "parch", "age", "fare"), yColumn = "survived")
-    val (train, test) = dataset.split(0.9)
+    //shuffledDf
+    //    .toHeapDataset(labels = "survived")
+
+    // shuffledDf.splitRows(proportion = 0.8)
+    val dataset = shuffledDf.toOnHeapDataset(labels = "survived")
+    val (train, test) = dataset.split(0.7)
 
     model.use {
-        it.compile(optimizer = SGD(learningRate = 0.01f), loss = Losses.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS, metric = Metrics.ACCURACY)
+        it.compile(
+            optimizer = SGD(learningRate = 0.01f),
+            loss = Losses.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS,
+            metric = Metrics.ACCURACY
+        )
 
         it.summary()
         it.fit(dataset = train, epochs = EPOCHS, batchSize = TRAINING_BATCH_SIZE)
@@ -62,22 +72,32 @@ fun main() {
     }
 }
 
-private fun OnHeapDataset.Companion.create(dataframe: DataFrame<Any?>, xColumns: List<String>, yColumn: String): OnHeapDataset {
+private fun <T> DataFrame<T>.toOnHeapDataset(labels: String): OnHeapDataset {
+    return OnHeapDataset.create(
+        dataframe = this,
+        xColumns = listOf("\uFEFFpclass", "sibsp", "parch", "age", "fare"),
+        yColumn = "survived"
+    )
+}
+
+private fun OnHeapDataset.Companion.create(
+    dataframe: DataFrame<Any?>,
+    xColumns: List<String>,
+    yColumn: String
+): OnHeapDataset {
     fun extractX(): Array<FloatArray> {
 
         val format = NumberFormat.getInstance(Locale.FRANCE) // TODO: parsing strange numbers
 
-        val init: (index: Int) -> FloatArray = { index ->
-            floatArrayOf(
-                (dataframe[index]["\uFEFFpclass"] as Int).toFloat(),
-                (dataframe[index]["sibsp"] as Int).toFloat(),
-                (dataframe[index]["parch"] as Int).toFloat(),
-                format.parse(dataframe[index]["age"] as String).toFloat()/100, // TODO: build statistics and apply custom normalization
-                format.parse(dataframe[index]["fare"] as String).toFloat()/1000 // TODO: build statistics and apply custom normalization
-            )
-        }
-        val array = Array(dataframe.nrow(), init = init)
-        return array
+        val converted = dataframe.remove(yColumn)
+            .convert("\uFEFFpclass", "sibsp", "parch").toFloat()
+            .convert("age").with { format.parse(it as String).toFloat() }
+            .convert("fare").with { format.parse(it as String).toFloat() }
+            .map {
+                (values() as List<Float>).toFloatArray()
+            }.toTypedArray()
+
+        return converted
     }
 
     fun extractY(): FloatArray {
