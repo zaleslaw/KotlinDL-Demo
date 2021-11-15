@@ -24,10 +24,14 @@ private const val TRAINING_BATCH_SIZE = 50
 
 fun main() {
     val df = DataFrame.readCSV(fileOrUrl = "src/main/resources/titanic.csv", delimiter = ';')
-
-    val format = NumberFormat.getInstance(Locale.FRANCE)
+    
+    // How many nulls in different columns?
+    df.columnNames().forEach { columnName ->
+        println("Column $columnName contains ${df[columnName].values().count { it == null }} nulls")
+    }
 
     // Calculating imputing values
+    val format = NumberFormat.getInstance(Locale.FRANCE)
     val sibspAvg = df["sibsp"].filter { it != null }.map { (it as Int).toDouble() }.values().average()
     val parchAvg = df["parch"].filter { it != null }.map { (it as Int).toDouble() }.values().average()
     val ageAvg = df["age"].filter { it != null }.map { format.parse(it as String).toDouble() }.values().average()
