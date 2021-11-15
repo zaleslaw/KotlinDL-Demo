@@ -24,7 +24,7 @@ private const val TRAINING_BATCH_SIZE = 50
 
 fun main() {
     val df = DataFrame.readCSV(fileOrUrl = "src/main/resources/titanic.csv", delimiter = ';')
-    
+
     // How many nulls in different columns?
     df.columnNames().forEach { columnName ->
         println("Column $columnName contains ${df[columnName].values().count { it == null }} nulls")
