@@ -101,7 +101,7 @@ private fun drawAndSaveDetectedObjects(
         val left = it.xMin * imageShape.width!! * pixelWidth
         val bottom = it.yMax * imageShape.height!! * pixelHeight
         val right = it.xMax * imageShape.width!! * pixelWidth
-        if (abs(top - bottom) > 400 || abs(right - left) > 400) return
+        if (abs(top - bottom) > 400 || abs(right - left) > 400) return@forEach
         // left, bot, right, top
 
         // y = columnIndex
@@ -118,8 +118,8 @@ private fun drawAndSaveDetectedObjects(
         }
         newGraphics.stroke = stroke1
         newGraphics.drawRect(xRect.toInt(), yRect.toInt(), (right - left).toInt(), (top - bottom).toInt())
-
-        ImageIO.write(bufferedImage, "png", File("cache/street/$i.png"))
     }
+
+    ImageIO.write(bufferedImage, "png", File("cache/street/$i.png"))
 }
 
