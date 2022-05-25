@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 JetBrains s.r.o. and Kotlin Deep Learning project contributors. All Rights Reserved.
+ * Copyright 2020-2022 JetBrains s.r.o. and Kotlin Deep Learning project contributors. All Rights Reserved.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE.txt file.
  */
 
@@ -14,10 +14,11 @@ import org.jetbrains.kotlinx.dl.api.core.optimizer.Adam
 import org.jetbrains.kotlinx.dl.api.core.summary.logSummary
 import org.jetbrains.kotlinx.dl.dataset.OnFlyImageDataset
 import org.jetbrains.kotlinx.dl.dataset.dogsCatsDatasetPath
-import org.jetbrains.kotlinx.dl.dataset.image.ColorOrder
+import org.jetbrains.kotlinx.dl.dataset.image.ColorMode
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.generator.FromFolders
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.InterpolationType
+import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.convert
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.resize
 import java.io.File
 import kotlin.reflect.KFunction4
@@ -52,21 +53,14 @@ fun resnet50onDogsVsCatsDataset() {
 }
 
 internal fun runResNetTraining(modelBuilderFunction: KFunction4<Long, Int, Long, Activations, Functional>) {
-    val dogsVsCatsDatasetPath = dogsCatsDatasetPath()
-
     val preprocessing: Preprocessing = preprocess {
-        load {
-            pathToData = File(dogsVsCatsDatasetPath)
-            imageShape = ImageShape(channels = NUM_CHANNELS)
-            colorMode = ColorOrder.BGR
-            labelGenerator = FromFolders(mapping = mapOf("cat" to 0, "dog" to 1))
-        }
         transformImage {
             resize {
                 outputHeight = IMAGE_SIZE.toInt()
                 outputWidth = IMAGE_SIZE.toInt()
                 interpolation = InterpolationType.BILINEAR
             }
+            convert { colorMode = ColorMode.BGR }
         }
         transformTensor {
             rescale {
@@ -75,7 +69,12 @@ internal fun runResNetTraining(modelBuilderFunction: KFunction4<Long, Int, Long,
         }
     }
 
-    val dataset = OnFlyImageDataset.create(preprocessing).shuffle()
+    val dogsVsCatsDatasetPath = dogsCatsDatasetPath()
+    val dataset = OnFlyImageDataset.create(
+        File(dogsVsCatsDatasetPath),
+        FromFolders(mapping = mapOf("cat" to 0, "dog" to 1)),
+        preprocessing
+    ).shuffle()
     val (train, test) = dataset.split(TRAIN_TEST_SPLIT_RATIO)
 
     val model = modelBuilderFunction.invoke(IMAGE_SIZE, NUM_CLASSES, NUM_CHANNELS, Activations.Linear)

@@ -13,7 +13,6 @@ import org.jetbrains.kotlinx.dl.api.inference.keras.loaders.TFModelHub
 import org.jetbrains.kotlinx.dl.api.inference.keras.loaders.TFModels
 import org.jetbrains.kotlinx.dl.dataset.OnFlyImageDataset
 import org.jetbrains.kotlinx.dl.dataset.dogsCatsSmallDatasetPath
-import org.jetbrains.kotlinx.dl.dataset.image.ColorOrder
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.generator.FromFolders
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.InterpolationType
@@ -23,7 +22,7 @@ import java.io.File
 fun main() {
     val dogsVsCatsDatasetPath = dogsCatsSmallDatasetPath()
 
-    val preprocessing: Preprocessing = preprocess {
+   /* val preprocessing: Preprocessing = preprocess {
         load {
             pathToData = File(dogsVsCatsDatasetPath)
             imageShape = ImageShape(channels = 3)
@@ -113,5 +112,5 @@ fun main() {
         val accuracyAfterTraining = it.evaluate(dataset = test, batchSize = 16).metrics[Metrics.ACCURACY]
 
         println("Accuracy after training $accuracyAfterTraining")
-    }
+    }*/
 }

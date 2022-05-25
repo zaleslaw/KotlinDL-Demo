@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 JetBrains s.r.o. and Kotlin Deep Learning project contributors. All Rights Reserved.
+ * Copyright 2020-2022 JetBrains s.r.o. and Kotlin Deep Learning project contributors. All Rights Reserved.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE.txt file.
  */
 
@@ -23,12 +23,13 @@ import org.jetbrains.kotlinx.dl.api.core.summary.logSummary
 import org.jetbrains.kotlinx.dl.dataset.OnFlyImageDataset
 import org.jetbrains.kotlinx.dl.dataset.cifar10Paths
 import org.jetbrains.kotlinx.dl.dataset.handler.extractCifar10LabelsAnsSort
-import org.jetbrains.kotlinx.dl.dataset.image.ColorOrder
+import org.jetbrains.kotlinx.dl.dataset.image.ColorMode
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.*
+import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.convert
 import java.io.File
 
 private const val PATH_TO_MODEL = "savedmodels/vgg11"
-private const val EPOCHS = 3
+private const val EPOCHS = 1 // 10, at least, is recommended
 private const val TRAINING_BATCH_SIZE = 128
 private const val TEST_BATCH_SIZE = 1000
 private const val NUM_LABELS = 10
@@ -53,34 +54,34 @@ private val vgg11 = Sequential.of(
     ),
     Conv2D(
         filters = 32,
-        kernelSize = longArrayOf(3, 3),
-        strides = longArrayOf(1, 1, 1, 1),
+        kernelSize = 3,
+        strides = 1,
         activation = Activations.Relu,
         kernelInitializer = HeNormal(),
         biasInitializer = HeNormal(),
         padding = ConvPadding.SAME
     ),
     MaxPool2D(
-        poolSize = intArrayOf(1, 2, 2, 1),
-        strides = intArrayOf(1, 2, 2, 1)
+        poolSize = 2,
+        strides = 2,
     ),
     Conv2D(
         filters = 64,
-        kernelSize = longArrayOf(3, 3),
-        strides = longArrayOf(1, 1, 1, 1),
+        kernelSize = 3,
+        strides = 1,
         activation = Activations.Relu,
         kernelInitializer = HeNormal(),
         biasInitializer = HeNormal(),
         padding = ConvPadding.SAME
     ),
     MaxPool2D(
-        poolSize = intArrayOf(1, 2, 2, 1),
-        strides = intArrayOf(1, 2, 2, 1)
+        poolSize = 2,
+        strides = 2,
     ),
     Conv2D(
         filters = 128,
-        kernelSize = longArrayOf(3, 3),
-        strides = longArrayOf(1, 1, 1, 1),
+        kernelSize = 3,
+        strides = 1,
         activation = Activations.Relu,
         kernelInitializer = HeNormal(),
         biasInitializer = HeNormal(),
@@ -88,21 +89,21 @@ private val vgg11 = Sequential.of(
     ),
     Conv2D(
         filters = 128,
-        kernelSize = longArrayOf(3, 3),
-        strides = longArrayOf(1, 1, 1, 1),
+        kernelSize = 3,
+        strides = 1,
         activation = Activations.Relu,
         kernelInitializer = HeNormal(),
         biasInitializer = HeNormal(),
         padding = ConvPadding.SAME
     ),
     MaxPool2D(
-        poolSize = intArrayOf(1, 2, 2, 1),
-        strides = intArrayOf(1, 2, 2, 1)
+        poolSize = 2,
+        strides = 2,
     ),
     Conv2D(
         filters = 256,
-        kernelSize = longArrayOf(3, 3),
-        strides = longArrayOf(1, 1, 1, 1),
+        kernelSize = 3,
+        strides = 1,
         activation = Activations.Relu,
         kernelInitializer = HeNormal(),
         biasInitializer = HeNormal(),
@@ -110,38 +111,38 @@ private val vgg11 = Sequential.of(
     ),
     Conv2D(
         filters = 256,
-        kernelSize = longArrayOf(3, 3),
-        strides = longArrayOf(1, 1, 1, 1),
-        activation = Activations.Relu,
-        kernelInitializer = HeNormal(),
-        biasInitializer = HeNormal(),
-        padding = ConvPadding.SAME
-    ),
-    MaxPool2D(
-        poolSize = intArrayOf(1, 2, 2, 1),
-        strides = intArrayOf(1, 2, 2, 1)
-    ),
-    Conv2D(
-        filters = 256,
-        kernelSize = longArrayOf(3, 3),
-        strides = longArrayOf(1, 1, 1, 1),
-        activation = Activations.Relu,
-        kernelInitializer = HeNormal(),
-        biasInitializer = HeNormal(),
-        padding = ConvPadding.SAME
-    ),
-    Conv2D(
-        filters = 256,
-        kernelSize = longArrayOf(3, 3),
-        strides = longArrayOf(1, 1, 1, 1),
+        kernelSize = 3,
+        strides = 1,
         activation = Activations.Relu,
         kernelInitializer = HeNormal(),
         biasInitializer = HeNormal(),
         padding = ConvPadding.SAME
     ),
     MaxPool2D(
-        poolSize = intArrayOf(1, 2, 2, 1),
-        strides = intArrayOf(1, 2, 2, 1)
+        poolSize = 2,
+        strides = 2,
+    ),
+    Conv2D(
+        filters = 256,
+        kernelSize = 3,
+        strides = 1,
+        activation = Activations.Relu,
+        kernelInitializer = HeNormal(),
+        biasInitializer = HeNormal(),
+        padding = ConvPadding.SAME
+    ),
+    Conv2D(
+        filters = 256,
+        kernelSize = 3,
+        strides = 1,
+        activation = Activations.Relu,
+        kernelInitializer = HeNormal(),
+        biasInitializer = HeNormal(),
+        padding = ConvPadding.SAME
+    ),
+    MaxPool2D(
+        poolSize = 2,
+        strides = 2,
     ),
     Flatten(),
     Dense(
@@ -175,14 +176,8 @@ private val vgg11 = Sequential.of(
  * - model evaluation
  */
 fun vgg() {
-    val (cifarImagesArchive, cifarLabelsArchive) = cifar10Paths()
-
     val preprocessing: Preprocessing = preprocess {
-        load {
-            pathToData = File(cifarImagesArchive)
-            imageShape = ImageShape(IMAGE_SIZE, IMAGE_SIZE, 3)
-            colorMode = ColorOrder.BGR
-        }
+        transformImage { convert { colorMode = ColorMode.BGR } }
         transformTensor {
             rescale {
                 scalingCoefficient = 255f
@@ -190,8 +185,9 @@ fun vgg() {
         }
     }
 
+    val (cifarImagesArchive, cifarLabelsArchive) = cifar10Paths()
     val y = extractCifar10LabelsAnsSort(cifarLabelsArchive, 10)
-    val dataset = OnFlyImageDataset.create(preprocessing, y)
+    val dataset = OnFlyImageDataset.create(File(cifarImagesArchive), y, preprocessing)
 
     val (train, test) = dataset.split(TRAIN_TEST_SPLIT_RATIO)
 
