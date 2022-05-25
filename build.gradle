@@ -22,10 +22,10 @@ dependencies {
     compile 'org.tensorflow:libtensorflow:1.15.0'
     compile 'org.tensorflow:libtensorflow_jni_gpu:1.15.0'*/
 
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testCompile 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-    testCompile 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testCompile 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
 }
 
 compileKotlin {
